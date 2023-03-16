@@ -46,11 +46,11 @@ const getUserById = (req, res) => {
 const updateUserInfo = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, about }, { runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((newUserInfo) => res.send({ newUserInfo }))
+    .then((newUserInfo) => res.send(newUserInfo))
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
@@ -66,11 +66,11 @@ const updateUserInfo = (req, res) => {
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar }, { runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((newUserInfo) => res.send({ newUserInfo }))
+    .then((newUserInfo) => res.send(newUserInfo))
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });

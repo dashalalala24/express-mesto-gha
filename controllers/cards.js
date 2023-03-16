@@ -13,11 +13,12 @@ const getCards = (req, res) => {
 };
 
 const createCard = (req, res) => {
-  const { name, link } = req.body;
   const owner = req.user._id;
+  const { name, link } = req.body;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
     .catch((err) => {
+      console.log(err.name, err.message);
       if (err.name === 'ValidationError') {
         res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
       } else {

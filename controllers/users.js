@@ -1,22 +1,27 @@
 const User = require('../models/user');
 
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  SERVER_ERROR,
+  CREATED_CODE,
+  BAD_REQUEST_CODE,
+  NOT_FOUND_CODE,
+  SERVER_ERROR_CODE,
+  validationErrorMessage,
+  serverErrorMessage,
+  userNotFoundMessage,
+  incorrectUserIdMessage,
 } = require('../utils/constants');
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(CREATED_CODE).send({ data: user }))
     .catch((err) => {
       console.log(err.name);
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
+        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
       } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
       }
     });
 };
@@ -24,66 +29,54 @@ const createUser = (req, res) => {
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' }));
+    .catch(() => res.status(SERVER_ERROR_CODE).send(serverErrorMessage));
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    // .then((user) => res.send({ data: user }))
     .then((user) => {
       if (user == null) {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+        res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+        return;
       }
       res.send(user);
     })
     .catch((err) => {
       console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
+        res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
       } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+      }
+    });
+};
+
+const updateUser = (req, res, data) => {
+  User.findByIdAndUpdate(req.user._id, data, { new: true, runValidators: true })
+    .orFail(() => {
+      throw new Error('NotFound');
+    })
+    .then((newUserInfo) => res.send(newUserInfo))
+    .catch((err) => {
+      if (err.message === 'NotFound') {
+        res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+      }
+      if (err.name === 'ValidationError') {
+        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+      } else {
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
       }
     });
 };
 
 const updateUserInfo = (req, res) => {
   const { name, about } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new Error('NotFound');
-    })
-    .then((newUserInfo) => res.send(newUserInfo))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-      }
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
-      }
-    });
+  updateUser(req, res, { name, about });
 };
 
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
-
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
-    .orFail(() => {
-      throw new Error('NotFound');
-    })
-    .then((newUserInfo) => res.send(newUserInfo))
-    .catch((err) => {
-      if (err.message === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-      }
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
-      } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
-      }
-    });
+  updateUser(req, res, { avatar });
 };
 
 module.exports = {

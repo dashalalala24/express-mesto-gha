@@ -1,28 +1,33 @@
 const Card = require('../models/card');
 
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  SERVER_ERROR,
+  CREATED_CODE,
+  BAD_REQUEST_CODE,
+  NOT_FOUND_CODE,
+  SERVER_ERROR_CODE,
+  validationErrorMessage,
+  serverErrorMessage,
+  cardNotFoundMessage,
+  incorrectCardIdMessage,
 } = require('../utils/constants');
 
 const getCards = (req, res) => {
   Card.find({})
+    .populate(['owner', 'likes'])
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' }));
+    .catch(() => res.status(SERVER_ERROR_CODE).send(serverErrorMessage));
 };
 
 const createCard = (req, res) => {
-  const owner = req.user._id;
+  const owner = req.user;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(CREATED_CODE).send({ data: card }))
     .catch((err) => {
-      console.log(err.name, err.message);
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
+        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
       } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
       }
     });
 };
@@ -31,16 +36,16 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (card == null) {
-        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+        res.status(NOT_FOUND_CODE).send(cardNotFoundMessage);
+        return;
       }
       res.send(card);
     })
     .catch((err) => {
-      console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Некорректный id карточки' });
+        res.status(BAD_REQUEST_CODE).send(incorrectCardIdMessage);
       } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
       }
     });
 };
@@ -53,16 +58,16 @@ const putLike = (req, res) => {
   )
     .then((card) => {
       if (card == null) {
-        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+        res.status(NOT_FOUND_CODE).send(cardNotFoundMessage);
+        return;
       }
       res.send(card);
     })
     .catch((err) => {
-      console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Некорректный id карточки' });
+        res.status(BAD_REQUEST_CODE).send(incorrectCardIdMessage);
       } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
       }
     });
 };
@@ -75,16 +80,16 @@ const deleteLike = (req, res) => {
   )
     .then((card) => {
       if (card == null) {
-        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+        res.status(NOT_FOUND_CODE).send(cardNotFoundMessage);
+        return;
       }
       res.send(card);
     })
     .catch((err) => {
-      console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST).send({ message: 'Некорректный id карточки' });
+        res.status(BAD_REQUEST_CODE).send(incorrectCardIdMessage);
       } else {
-        res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
       }
     });
 };

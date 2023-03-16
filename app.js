@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { NOT_FOUND } = require('./utils/constants');
 
 // const userRouter = require('./routes/users');
 // const cardRouter = require('./routes/cards');
@@ -31,11 +32,11 @@ app.use((req, res, next) => {
   next();
 });
 
-// app.use((req, res) => {
-//   res.status(404).send({ errorMessage: 'Страница не существует' });
-// });
-
 app.use(routes);
+
+app.use('*', (req, res, next) => {
+  next(res.status(NOT_FOUND).send({ message: 'Страница не существует' }));
+});
 
 mongoose.connect(MONGO_URL);
 

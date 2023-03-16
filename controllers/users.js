@@ -29,16 +29,17 @@ const getUsers = (req, res) => {
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => {
-      throw new Error('NotFound');
+    // .then((user) => res.send({ data: user }))
+    .then((user) => {
+      if (user == null) {
+        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
+      }
+      res.send(user);
     })
-    .then((user) => res.send({ data: user }))
     .catch((err) => {
       console.log(err.message, err.name);
-      if (err.message === 'NotFound') {
-        res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
-      } if (err.name === 'CastError') {
-        res.status(NOT_FOUND).send({ message: 'Некорректный id пользователя' });
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST).send({ message: 'Некорректный id пользователя' });
       } else {
         res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
       }

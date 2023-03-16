@@ -29,14 +29,16 @@ const createCard = (req, res) => {
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
-      throw new Error('NotFound');
+    .then((card) => {
+      if (card == null) {
+        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+      }
+      res.send(card);
     })
-    .then((card) => res.send(card))
     .catch((err) => {
       console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+        res.status(BAD_REQUEST).send({ message: 'Некорректный id карточки' });
       } else {
         res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
       }
@@ -49,17 +51,16 @@ const putLike = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => {
-      throw new Error('NotFound');
+    .then((card) => {
+      if (card == null) {
+        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+      }
+      res.send(card);
     })
-    .then((card) => res.send(card))
     .catch((err) => {
       console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
-      }
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
+        res.status(BAD_REQUEST).send({ message: 'Некорректный id карточки' });
       } else {
         res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
       }
@@ -72,17 +73,16 @@ const deleteLike = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .orFail(() => {
-      throw new Error('NotFound');
+    .then((card) => {
+      if (card == null) {
+        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
+      }
+      res.send(card);
     })
-    .then((card) => res.send(card))
     .catch((err) => {
       console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(NOT_FOUND).send({ message: 'Не удалось найти карточку' });
-      }
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST).send({ message: 'Ошибка валидации' });
+        res.status(BAD_REQUEST).send({ message: 'Некорректный id карточки' });
       } else {
         res.status(SERVER_ERROR).send({ message: 'Ошибка на стороне сервера' });
       }

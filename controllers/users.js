@@ -50,7 +50,7 @@ const updateUserInfo = (req, res) => {
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((user) => res.send({ data: user }))
+    .then((newUserInfo) => res.send({ newUserInfo }))
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });
@@ -70,7 +70,7 @@ const updateUserAvatar = (req, res) => {
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((user) => res.send({ data: user }))
+    .then((newUserInfo) => res.send({ newUserInfo }))
     .catch((err) => {
       if (err.message === 'NotFound') {
         res.status(NOT_FOUND).send({ message: 'Пользователь не найден' });

@@ -1,20 +1,37 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const {
   CREATED_CODE,
   BAD_REQUEST_CODE,
+  UNAUTHORIZED_CODE,
   NOT_FOUND_CODE,
   SERVER_ERROR_CODE,
   validationErrorMessage,
   serverErrorMessage,
+  unauthorizedErrorMessage,
   userNotFoundMessage,
   incorrectUserIdMessage,
 } = require('../utils/constants');
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const {
+    name,
+    about,
+    avatar,
+    email,
+    password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.status(CREATED_CODE).send({ data: user }))
     .catch((err) => {
       console.log(err.name);
@@ -51,6 +68,21 @@ const getUserById = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (user == null) {
+        res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+        return;
+      }
+      res.send(user);
+    })
+    .catch((err) => {
+      console.log(err.message, err.name);
+      res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+    });
+};
+
 const updateUser = (req, res, data) => {
   User.findByIdAndUpdate(req.user._id, data, { new: true, runValidators: true })
     .orFail(() => {
@@ -79,10 +111,36 @@ const updateUserAvatar = (req, res) => {
   updateUser(req, res, { avatar });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        'secret-key',
+        { expiresIn: '7d' },
+      );
+
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+      });
+
+      res.send({ token });
+    })
+    .catch((err) => {
+      console.log(err.message, err.name);
+      res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
+  getCurrentUser,
   createUser,
   updateUserInfo,
   updateUserAvatar,
+  login,
 };

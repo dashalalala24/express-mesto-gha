@@ -9,13 +9,13 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: 2,
     maxlength: 30,
-    default: 'Jacques-Yves Cousteau',
+    default: 'Жак-Ив Кусто',
   },
   about: {
     type: String,
     minlength: 2,
     maxlength: 30,
-    default: 'Oceanographer',
+    default: 'Исследователь',
   },
   avatar: {
     type: String,

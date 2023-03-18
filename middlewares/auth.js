@@ -11,14 +11,16 @@ const auth = (req, res, next) => {
   //   console.log(req.headers);
   //   return res.status(UNAUTHORIZED_CODE).send({ message: 'да епта' });
   // }
-  console.log(req.headers, req.body);
+  // console.log(req.headers, req.body);
   // // const token = authorization.replace('Bearer ', '');
-  const token = req.headers.cookie.replace('jwt=', '');
+  // const token = req.headers.cookie.replace('jwt=', '');
   // const token = req.headers.cookie.jwt;
   let payload;
 
   try {
+    const token = req.headers.cookie.replace('jwt=', '');
     payload = jwt.verify(token, SECRET_KEY);
+    console.log(token);
   } catch (err) {
     // console.log(req.headers);
     // return res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);

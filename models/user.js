@@ -8,7 +8,6 @@ const userSchema = new mongoose.Schema({
     type: String,
     minlength: 2,
     maxlength: 30,
-    unique: true,
     default: 'Jacques-Yves Cousteau',
   },
   about: {

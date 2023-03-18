@@ -5,26 +5,26 @@ const User = require('../models/user');
 const {
   CREATED_CODE,
   SECRET_KEY,
-//   BAD_REQUEST_CODE,
-//   UNAUTHORIZED_CODE,
-//   NOT_FOUND_CODE,
-//   CONFLICT_CODE,
-//   SERVER_ERROR_CODE,
-//   validationErrorMessage,
-//   serverErrorMessage,
-//   unauthorizedErrorMessage,
-//   userNotFoundMessage,
-//   incorrectUserIdMessage,
-//   conflictErrorMessage,
+  //   BAD_REQUEST_CODE,
+  //   UNAUTHORIZED_CODE,
+  //   NOT_FOUND_CODE,
+  CONFLICT_CODE,
+  //   SERVER_ERROR_CODE,
+  //   validationErrorMessage,
+  //   serverErrorMessage,
+  //   unauthorizedErrorMessage,
+  //   userNotFoundMessage,
+  //   incorrectUserIdMessage,
+  conflictErrorMessage,
 } = require('../utils/constants');
 
 const { BadRequest } = require('../errors/BadRequest');
 const { UnauthorizedError } = require('../errors/UnauthorizedError');
 const { NotFoundError } = require('../errors/NotFoundError');
-const { ConflictError } = require('../errors/ConflictError');
+// const { ConflictError } = require('../errors/ConflictError');
 const { ServerError } = require('../errors/ServerError');
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -52,14 +52,15 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.log(err.code);
       if (err.code === 11000) {
-        // res.status(CONFLICT_CODE).send(conflictErrorMessage);
-        throw new ConflictError('Пользователь с таким email уже зарегистрирован');
+        res.status(CONFLICT_CODE).send(conflictErrorMessage);
+        // next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       } if (err.name === 'ValidationError') {
         // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
-        throw new BadRequest('Ошибка валидации');
+        next(new BadRequest('Ошибка валидации'));
       } else {
         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        throw new ServerError('Ошибка на стороне сервера');
+        next(ServerError('Ошибка на стороне сервера'));
+        // next(err);
       }
     });
 };

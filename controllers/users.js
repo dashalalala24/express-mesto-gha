@@ -4,16 +4,24 @@ const User = require('../models/user');
 
 const {
   CREATED_CODE,
-  BAD_REQUEST_CODE,
-  UNAUTHORIZED_CODE,
-  NOT_FOUND_CODE,
-  SERVER_ERROR_CODE,
-  validationErrorMessage,
-  serverErrorMessage,
-  unauthorizedErrorMessage,
-  userNotFoundMessage,
-  incorrectUserIdMessage,
+//   BAD_REQUEST_CODE,
+//   UNAUTHORIZED_CODE,
+//   NOT_FOUND_CODE,
+//   CONFLICT_CODE,
+//   SERVER_ERROR_CODE,
+//   validationErrorMessage,
+//   serverErrorMessage,
+//   unauthorizedErrorMessage,
+//   userNotFoundMessage,
+//   incorrectUserIdMessage,
+//   conflictErrorMessage,
 } = require('../utils/constants');
+
+const { BadRequest } = require('../errors/BadRequest');
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
+const { NotFoundError } = require('../errors/NotFoundError');
+const { ConflictError } = require('../errors/ConflictError');
+const { ServerError } = require('../errors/ServerError');
 
 const createUser = (req, res) => {
   const {
@@ -25,20 +33,32 @@ const createUser = (req, res) => {
   } = req.body;
 
   bcrypt.hash(password, 10)
-    .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
+    .then(
+      (hash) => User.create({
+        name,
+        about,
+        avatar,
+        email,
+        password: hash,
+      }),
+    )
+    .then((user) => res.status(CREATED_CODE).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
     }))
-    .then((user) => res.status(CREATED_CODE).send({ data: user }))
     .catch((err) => {
-      console.log(err.name);
-      if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+      console.log(err.code);
+      if (err.code === 11000) {
+        // res.status(CONFLICT_CODE).send(conflictErrorMessage);
+        throw new ConflictError('Пользователь с таким email уже зарегистрирован');
+      } if (err.name === 'ValidationError') {
+        // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+        throw new BadRequest('Ошибка валидации');
       } else {
-        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        throw new ServerError('Ошибка на стороне сервера');
       }
     });
 };
@@ -46,24 +66,26 @@ const createUser = (req, res) => {
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res.status(SERVER_ERROR_CODE).send(serverErrorMessage));
+    .catch(() => { throw new ServerError('Ошибка на стороне сервера'); });
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user == null) {
-        res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
-        return;
+        // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+        throw new NotFoundError('Пользователь не найден');
       }
       res.send(user);
     })
     .catch((err) => {
       console.log(err.message, err.name);
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
+        // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
+        throw new BadRequest('Ошибка валидации');
       } else {
-        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        throw new ServerError('Ошибка на стороне сервера');
       }
     });
 };
@@ -72,14 +94,15 @@ const getCurrentUser = (req, res) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user == null) {
-        res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
-        return;
+        // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+        throw new NotFoundError('Пользователь не найден');
       }
       res.send(user);
     })
     .catch((err) => {
       console.log(err.message, err.name);
-      res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+      // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+      throw new ServerError('Ошибка на стороне сервера');
     });
 };
 
@@ -91,12 +114,15 @@ const updateUser = (req, res, data) => {
     .then((newUserInfo) => res.send(newUserInfo))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+        // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
+        throw new NotFoundError('Пользователь не найден');
       }
       if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+        // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+        throw new BadRequest('Ошибка валидации');
       } else {
-        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        throw new ServerError('Ошибка на стороне сервера');
       }
     });
 };
@@ -131,7 +157,8 @@ const login = (req, res) => {
     })
     .catch((err) => {
       console.log(err.message, err.name);
-      res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
+      // res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
+      throw new UnauthorizedError('Ошибка авторизации');
     });
 };
 

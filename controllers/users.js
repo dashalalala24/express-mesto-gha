@@ -4,6 +4,7 @@ const User = require('../models/user');
 
 const {
   CREATED_CODE,
+  SECRET_KEY,
 //   BAD_REQUEST_CODE,
 //   UNAUTHORIZED_CODE,
 //   NOT_FOUND_CODE,
@@ -82,7 +83,7 @@ const getUserById = (req, res) => {
       console.log(err.message, err.name);
       if (err.name === 'CastError') {
         // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
-        throw new BadRequest('Ошибка валидации');
+        throw new BadRequest('Некорректный id пользователя');
       } else {
         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
         throw new ServerError('Ошибка на стороне сервера');
@@ -144,7 +145,7 @@ const login = (req, res) => {
     .then((user) => {
       const token = jwt.sign(
         { _id: user._id },
-        'secret-key',
+        SECRET_KEY,
         { expiresIn: '7d' },
       );
 

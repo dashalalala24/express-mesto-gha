@@ -15,6 +15,8 @@ const incorrectCardIdMessage = { message: 'Некорректный id карт�
 const pageNotFoundMessage = { message: 'Страница не существует' };
 const conflictErrorMessage = { message: 'Пользователь с таким email уже зарегистрирован' };
 
+const SECRET_KEY = 'secret-key';
+
 module.exports = {
   CREATED_CODE,
   BAD_REQUEST_CODE,
@@ -31,4 +33,5 @@ module.exports = {
   incorrectCardIdMessage,
   pageNotFoundMessage,
   conflictErrorMessage,
+  SECRET_KEY,
 };

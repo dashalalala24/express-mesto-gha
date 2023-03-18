@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-const { UNAUTHORIZED_CODE, unauthorizedErrorMessage } = require('../utils/constants');
+const { SECRET_KEY } = require('../utils/constants');
+
+const { UnauthorizedError } = require('../errors/UnauthorizedError');
 
 // eslint-disable-next-line consistent-return
 const auth = (req, res, next) => {
@@ -15,9 +17,10 @@ const auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, 'secret-key');
+    payload = jwt.verify(token, SECRET_KEY);
   } catch (err) {
-    return res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
+    // return res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
+    throw new UnauthorizedError('Ошибка авторизации');
   }
 
   req.user = payload;

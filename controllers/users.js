@@ -5,24 +5,24 @@ const User = require('../models/user');
 const {
   CREATED_CODE,
   SECRET_KEY,
-  //   BAD_REQUEST_CODE,
+  BAD_REQUEST_CODE,
   //   UNAUTHORIZED_CODE,
   //   NOT_FOUND_CODE,
-  CONFLICT_CODE,
-  //   SERVER_ERROR_CODE,
-  //   validationErrorMessage,
-  //   serverErrorMessage,
+  // CONFLICT_CODE,
+  SERVER_ERROR_CODE,
+  validationErrorMessage,
+  serverErrorMessage,
   //   unauthorizedErrorMessage,
   //   userNotFoundMessage,
   //   incorrectUserIdMessage,
-  conflictErrorMessage,
+  // conflictErrorMessage,
 } = require('../utils/constants');
 
-const { BadRequest } = require('../errors/BadRequest');
-const { UnauthorizedError } = require('../errors/UnauthorizedError');
-const { NotFoundError } = require('../errors/NotFoundError');
-// const { ConflictError } = require('../errors/ConflictError');
-const { ServerError } = require('../errors/ServerError');
+const BadRequest = require('../errors/BadRequest');
+const UnauthorizedError = require('../errors/UnauthorizedError');
+const NotFoundError = require('../errors/NotFoundError');
+const ConflictError = require('../errors/ConflictError');
+const ServerError = require('../errors/ServerError');
 
 const createUser = (req, res, next) => {
   const {
@@ -50,19 +50,20 @@ const createUser = (req, res, next) => {
       email: user.email,
     }))
     .catch((err) => {
-      console.log(err.code);
+      console.log(err.code, err.keyPattern, err.keyValue);
       if (err.code === 11000) {
-        res.status(CONFLICT_CODE).send(conflictErrorMessage);
-        // next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+        // res.status(CONFLICT_CODE).send(conflictErrorMessage);
+        throw new ConflictError('Пользователь с таким email уже зарегистрирован');
       } if (err.name === 'ValidationError') {
-        // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
-        next(new BadRequest('Ошибка валидации'));
+        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+        // throw new BadRequest('Ошибка валидации');
       } else {
-        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        next(ServerError('Ошибка на стороне сервера'));
+        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        // throw new ServerError('Ошибка на стороне сервера');
         // next(err);
       }
-    });
+    })
+    .catch(next);
 };
 
 const getUsers = (req, res) => {
@@ -92,7 +93,7 @@ const getUserById = (req, res) => {
     });
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (user == null) {
@@ -101,11 +102,12 @@ const getCurrentUser = (req, res) => {
       }
       res.send(user);
     })
-    .catch((err) => {
-      console.log(err.message, err.name);
-      // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-      throw new ServerError('Ошибка на стороне сервера');
-    });
+    // .catch((err) => {
+    //   console.log(err.message, err.name);
+    //   // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+    //   throw new ServerError('Ошибка на стороне сервера');
+    // })
+    .catch(next);
 };
 
 const updateUser = (req, res, data) => {
@@ -139,29 +141,49 @@ const updateUserAvatar = (req, res) => {
   updateUser(req, res, { avatar });
 };
 
-const login = (req, res) => {
-  const { email, password } = req.body;
+const login = (req, res, next) => {
+  // const { email, password } = req.body;
 
+  // return User.findUserByCredentials(email, password)
+  //   .then((user) => {
+  //     const token = jwt.sign(
+  //       { _id: user._id },
+  //       SECRET_KEY,
+  //       { expiresIn: '7d' },
+  //     );
+
+  //     res.cookie('jwt', token, {
+  //       maxAge: 3600000 * 24 * 7,
+  //       httpOnly: true,
+  //     });
+
+  //     res.send({ token });
+  //   })
+  //   .catch((err) => {
+  //     console.log(err.message, err.name);
+  //     console.log(res);
+  //     // res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
+  //     throw new UnauthorizedError('Ошибка авторизации');
+  //   });
+
+  const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      if (!user || !password) {
+        throw new UnauthorizedError('Неправильные почта или пароль');
+      }
       const token = jwt.sign(
         { _id: user._id },
         SECRET_KEY,
         { expiresIn: '7d' },
       );
-
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       });
-
-      res.send({ token });
+      return res.send({ token });
     })
-    .catch((err) => {
-      console.log(err.message, err.name);
-      // res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
-      throw new UnauthorizedError('Ошибка авторизации');
-    });
+    .catch(next);
 };
 
 module.exports = {

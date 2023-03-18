@@ -15,4 +15,9 @@ app.use(routes);
 
 mongoose.connect(MONGO_URL);
 
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  res.send({ message: err.message });
+});
+
 app.listen(PORT, () => { console.log(`App listening on port ${PORT}`); });

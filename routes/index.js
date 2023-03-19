@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { celebrate, Joi } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 
 // const { NOT_FOUND_CODE, pageNotFoundMessage } = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
@@ -46,5 +46,7 @@ router.use('*', (req, res, next) => {
 //         : 'Че-то другое',
 //     });
 // });
+
+router.use(errors());
 
 module.exports = router;

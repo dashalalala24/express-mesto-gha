@@ -1,7 +1,8 @@
 const jwt = require('jsonwebtoken');
+
 const { SECRET_KEY } = require('../utils/constants');
 
-const { UnauthorizedError } = require('../errors/UnauthorizedError');
+const UnauthorizedError = require('../errors/UnauthorizedError');
 
 // // eslint-disable-next-line consistent-return
 // const auth = (req, res, next) => {
@@ -51,25 +52,44 @@ const { UnauthorizedError } = require('../errors/UnauthorizedError');
 //   next();
 // };
 
-const auth = (req, res, next) => {
-  const { authorization } = req.headers;
-  const bearer = 'Bearer ';
+// const auth = (req, res, next) => {
+//   const { authorization } = req.headers.authorization;
+//   const bearer = 'Bearer ';
 
-  if (!authorization || !authorization.startsWith(bearer)) {
-    return next(new UnauthorizedError('Неправильные почта или пароль'));
+//   if (!authorization || !authorization.startsWith(bearer)) {
+//     console.log('проверка authorization в функции auth не прошла');
+//     console.log(req.headers);
+//     throw new UnauthorizedError('Неправильные почта или пароль');
+//   }
+
+//   const token = authorization.replace('jwt=', '');
+//   let payload;
+
+//   try {
+//     payload = jwt.verify(token, SECRET_KEY);
+//   } catch (err) {
+//     console.log('в функции auth jwt не записался в payload');
+//     throw new UnauthorizedError('Неправильные почта или пароль');
+//   }
+
+//   req.user = payload;
+//   console.log('функция auth отработала, вот payload:', payload);
+
+//   next();
+// };
+
+module.exports.auth = (req, res, next) => {
+  console.log(req);
+  if (!req.headers.cookie) {
+    console.log('проверка токена в функции auth не прошла');
+    throw next(new UnauthorizedError('Необходима авторизация'));
   }
-
-  const token = authorization.replace(bearer, '');
-  let payload;
-
-  try {
-    payload = jwt.verify(token, SECRET_KEY);
-  } catch (err) {
-    throw next(new UnauthorizedError('Неправильные почта или пароль'));
-  }
+  const { cookie } = req.headers;
+  const token = cookie.replace('jwt=', '');
+  const payload = jwt.verify(token, SECRET_KEY);
 
   req.user = payload;
-  return next();
-};
 
-module.exports = auth;
+  console.log('функция auth отработала, вот payload:', payload);
+  next();
+};

@@ -22,8 +22,9 @@ const BadRequest = require('../errors/BadRequest');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
-const ServerError = require('../errors/ServerError');
+// const ServerError = require('../errors/ServerError');
 
+// POST /signup
 const createUser = (req, res, next) => {
   const {
     name,
@@ -49,8 +50,9 @@ const createUser = (req, res, next) => {
       avatar: user.avatar,
       email: user.email,
     }))
+    .then((user) => console.log('из then createUser:', user))
     .catch((err) => {
-      console.log(err.code, err.keyPattern, err.keyValue);
+      console.log('из catch createUser:', err.code, err.keyPattern, err.keyValue);
       if (err.code === 11000) {
         // res.status(CONFLICT_CODE).send(conflictErrorMessage);
         next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
@@ -66,12 +68,14 @@ const createUser = (req, res, next) => {
     .catch(next);
 };
 
+// GET /users
 const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(next);
 };
 
+// GET /users/:userId
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
@@ -82,7 +86,7 @@ const getUserById = (req, res, next) => {
       res.send(user);
     })
     .catch((err) => {
-      console.log(err.message, err.name);
+      console.log('из catch getUserById:', err.message, err.name);
       if (err.name === 'CastError') {
         // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
         throw new BadRequest('Некорректный id пользователя');
@@ -93,17 +97,18 @@ const getUserById = (req, res, next) => {
     });
 };
 
+// GET /users/me
 const getCurrentUser = (req, res, next) => {
   console.log(req.user);
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
       if (userId == null) {
-        console.log(userId, ': id юзера');
+        console.log('из catch getCurrentUser:', user);
         // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
         throw new NotFoundError('Пользователь не найден');
       }
-      console.log(userId);
+      console.log('из then getCurrentUser:', userId, user);
       res.send(user);
     })
     // .catch((err) => {
@@ -114,7 +119,7 @@ const getCurrentUser = (req, res, next) => {
     .catch(next);
 };
 
-const updateUser = (req, res, data) => {
+const updateUser = (req, res, data, next) => {
   User.findByIdAndUpdate(req.user._id, data, { new: true, runValidators: true })
     .orFail(() => {
       throw new Error('NotFound');
@@ -130,22 +135,48 @@ const updateUser = (req, res, data) => {
         throw new BadRequest('Ошибка валидации');
       } else {
         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        throw new ServerError('Ошибка на стороне сервера');
+        // throw new ServerError('Ошибка на стороне сервера');
+        next(err);
       }
     });
 };
 
+// PATCH /users/me
 const updateUserInfo = (req, res) => {
   const { name, about } = req.body;
   updateUser(req, res, { name, about });
 };
 
+// PATCH /users/me/avatar
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
   updateUser(req, res, { avatar });
 };
 
+// POST /signin
 const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      if (!user || !password) {
+        throw new UnauthorizedError('Неправильные почта или пароль');
+      }
+      const token = jwt.sign(
+        { _id: user._id },
+        SECRET_KEY,
+        { expiresIn: '7d' },
+      );
+
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+      });
+      // return res.send({ token });
+      res.send({ token });
+    })
+    .catch(next);
+
   // const { email, password } = req.body;
 
   // return User.findUserByCredentials(email, password)
@@ -169,26 +200,6 @@ const login = (req, res, next) => {
   //     // res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
   //     throw new UnauthorizedError('Ошибка авторизации');
   //   });
-
-  const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
-    .then((user) => {
-      if (!user || !password) {
-        throw new UnauthorizedError('Неправильные почта или пароль');
-      }
-      const token = jwt.sign(
-        { _id: user._id },
-        SECRET_KEY,
-        { expiresIn: '7d' },
-      );
-      res.cookie('jwt', token, {
-        maxAge: 7,
-        httpOnly: true,
-      });
-      // return res.send({ token });
-      res.send({ token });
-    })
-    .catch(next);
 };
 
 module.exports = {

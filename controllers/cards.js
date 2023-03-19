@@ -5,6 +5,7 @@ const { BadRequest } = require('../errors/BadRequest');
 const { NotFoundError } = require('../errors/NotFoundError');
 const { ServerError } = require('../errors/ServerError');
 
+// GET /cards
 const getCards = (req, res) => {
   Card.find({})
     .populate(['owner', 'likes'])
@@ -14,7 +15,7 @@ const getCards = (req, res) => {
       throw new ServerError('Ошибка на стороне сервера');
     });
 };
-
+// POST /cards
 const createCard = (req, res) => {
   const owner = req.user;
   const { name, link } = req.body;
@@ -31,6 +32,7 @@ const createCard = (req, res) => {
     });
 };
 
+// DELETE /cards/:cardId
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
@@ -51,6 +53,7 @@ const deleteCard = (req, res) => {
     });
 };
 
+// PUT /cards/:cardId/likes
 const putLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -75,6 +78,7 @@ const putLike = (req, res) => {
     });
 };
 
+// DELETE /cards/:cardId/likes
 const deleteLike = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,

@@ -17,10 +17,10 @@ app.use(routes);
 
 mongoose.connect(MONGO_URL);
 
-// // eslint-disable-next-line no-unused-vars
-// app.use((err, req, res, next) => {
-//   res.send({ message: err.message });
-// });
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  res.send({ message: err.message });
+});
 
 // app.use((err, req, res) => {
 //   const { statusCode = 500 } = err;

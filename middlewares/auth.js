@@ -79,9 +79,9 @@ const UnauthorizedError = require('../errors/UnauthorizedError');
 // };
 
 module.exports.auth = (req, res, next) => {
-  console.log(req);
+  // console.log(req);
   if (!req.headers.cookie) {
-    console.log('проверка токена в функции auth не прошла');
+    // console.log('проверка токена в функции auth не прошла');
     throw next(new UnauthorizedError('Необходима авторизация'));
   }
   const { cookie } = req.headers;
@@ -90,6 +90,6 @@ module.exports.auth = (req, res, next) => {
 
   req.user = payload;
 
-  console.log('функция auth отработала, вот payload:', payload);
+  // console.log('функция auth отработала, вот payload:', payload);
   next();
 };

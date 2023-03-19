@@ -33,7 +33,11 @@ const {
 
 router.get('/users', getUsers);
 router.get('/users/me', getCurrentUser);
-router.get('/users/:userId', getUserById);
+router.get('/users/:userId', celebrate({
+  body: Joi.object().keys({
+    userId: Joi.string().min(2).max(30),
+  }),
+}), getUserById);
 
 router.patch('/users/me', celebrate({
   body: Joi.object().keys({

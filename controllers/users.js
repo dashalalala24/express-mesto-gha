@@ -5,13 +5,13 @@ const User = require('../models/user');
 const {
   CREATED_CODE,
   SECRET_KEY,
-  BAD_REQUEST_CODE,
+  // BAD_REQUEST_CODE,
   //   UNAUTHORIZED_CODE,
   //   NOT_FOUND_CODE,
   // CONFLICT_CODE,
-  SERVER_ERROR_CODE,
-  validationErrorMessage,
-  serverErrorMessage,
+  // SERVER_ERROR_CODE,
+  // validationErrorMessage,
+  // serverErrorMessage,
   //   unauthorizedErrorMessage,
   //   userNotFoundMessage,
   //   incorrectUserIdMessage,
@@ -53,26 +53,26 @@ const createUser = (req, res, next) => {
       console.log(err.code, err.keyPattern, err.keyValue);
       if (err.code === 11000) {
         // res.status(CONFLICT_CODE).send(conflictErrorMessage);
-        throw new ConflictError('Пользователь с таким email уже зарегистрирован');
+        next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       } if (err.name === 'ValidationError') {
-        res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
-        // throw new BadRequest('Ошибка валидации');
-      } else {
-        res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        // throw new ServerError('Ошибка на стороне сервера');
+        // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
+        next(new BadRequest('Ошибка валидации'));
+      // } if {
+        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
+        // next(new ServerError('Ошибка на стороне сервера'));
         // next(err);
-      }
+      } else next(err);
     })
     .catch(next);
 };
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => { throw new ServerError('Ошибка на стороне сервера'); });
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user == null) {
@@ -86,20 +86,24 @@ const getUserById = (req, res) => {
       if (err.name === 'CastError') {
         // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
         throw new BadRequest('Некорректный id пользователя');
-      } else {
+      // } else {
         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        throw new ServerError('Ошибка на стороне сервера');
-      }
+        // throw new ServerError('Ошибка на стороне сервера');
+      } else next(err);
     });
 };
 
 const getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
+  console.log(req.user);
+  const userId = req.user._id;
+  User.findById(userId)
     .then((user) => {
-      if (user == null) {
+      if (userId == null) {
+        console.log(userId, ': id юзера');
         // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
         throw new NotFoundError('Пользователь не найден');
       }
+      console.log(userId);
       res.send(user);
     })
     // .catch((err) => {
@@ -178,10 +182,11 @@ const login = (req, res, next) => {
         { expiresIn: '7d' },
       );
       res.cookie('jwt', token, {
-        maxAge: 3600000 * 24 * 7,
+        maxAge: 7,
         httpOnly: true,
       });
-      return res.send({ token });
+      // return res.send({ token });
+      res.send({ token });
     })
     .catch(next);
 };

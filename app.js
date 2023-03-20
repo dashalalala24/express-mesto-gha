@@ -1,43 +1,21 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-// const cookieParser = require('cookie-parser');
 
 const routes = require('./routes');
+const errorHandler = require('./middlewares/errorHandler');
 
 const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
 
+mongoose.connect(MONGO_URL);
 const app = express();
 
-// app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(routes);
 
-mongoose.connect(MONGO_URL);
-
-// // eslint-disable-next-line no-unused-vars
-// app.use((err, req, res, next) => {
-//   res.send({ message: err.message });
-// });
-
-// eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
-  const { statusCode = 500 } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'Выставилось 500'
-        : err.message,
-    });
-});
-
-// app.get((res) => {
-//   console.log(res.cookie);
-// });
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

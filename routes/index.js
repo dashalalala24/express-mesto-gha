@@ -1,11 +1,9 @@
 const router = require('express').Router();
 const { celebrate, Joi, errors } = require('celebrate');
 
-// const { NOT_FOUND_CODE, pageNotFoundMessage } = require('../utils/constants');
 const NotFoundError = require('../errors/NotFoundError');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
-
 const { createUser, login } = require('../controllers/users');
 const { auth } = require('../middlewares/auth');
 
@@ -34,18 +32,6 @@ router.use(cardRouter);
 router.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
-
-// router.use((err, req, res) => {
-//   const { statusCode = 500 } = err;
-
-//   res
-//     .status(statusCode)
-//     .send({
-//       message: statusCode === 500
-//         ? 'Выставилось 500'
-//         : 'Че-то другое',
-//     });
-// });
 
 router.use(errors());
 

@@ -5,24 +5,11 @@ const User = require('../models/user');
 const {
   CREATED_CODE,
   SECRET_KEY,
-  // BAD_REQUEST_CODE,
-  //   UNAUTHORIZED_CODE,
-  //   NOT_FOUND_CODE,
-  // CONFLICT_CODE,
-  // SERVER_ERROR_CODE,
-  // validationErrorMessage,
-  // serverErrorMessage,
-  //   unauthorizedErrorMessage,
-  //   userNotFoundMessage,
-  //   incorrectUserIdMessage,
-  // conflictErrorMessage,
 } = require('../utils/constants');
 
 const BadRequestError = require('../errors/BadRequestError');
-// const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
-// const ServerError = require('../errors/ServerError');
 
 // POST /signup
 const createUser = (req, res, next) => {
@@ -50,19 +37,11 @@ const createUser = (req, res, next) => {
       avatar: user.avatar,
       email: user.email,
     }))
-    .then((user) => console.log('из then createUser:', user))
     .catch((err) => {
-      console.log('из catch createUser:', err.code, err.keyPattern, err.keyValue);
       if (err.code === 11000) {
-        // res.status(CONFLICT_CODE).send(conflictErrorMessage);
         throw next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       } if (err.name === 'ValidationError') {
-        // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
         throw next(new BadRequestError('Ошибка валидации'));
-      // } if {
-        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        // next(new ServerError('Ошибка на стороне сервера'));
-        // next(err);
       } else throw next(err);
     })
     .catch(next);
@@ -76,40 +55,16 @@ const getUsers = (req, res, next) => {
 };
 
 // GET /users/:userId
-// const getUserById = (req, res, next) => {
-//   User.findById(req.params.userId)
-//     .then((user) => {
-//       if (user == null) {
-//         // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
-//         throw new NotFoundError('Пользователь не найден');
-//       }
-//       res.send(user);
-//     })
-//     .catch((err) => {
-//       console.log('из catch getUserById:', err.message, err.name);
-//       if (err.name === 'CastError') {
-//         // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
-//         throw new BadRequestError('Некорректный id пользователя');
-//       // } else {
-//         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-//         // throw new ServerError('Ошибка на стороне сервера');
-//       } else next(err);
-//     });
-// };
-
 const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        console.log(1234567890);
         throw new NotFoundError('Пользователь не найден');
       }
       res.send(user);
     })
     .catch((err) => {
-      // console.log('из catch getUserById:', err.message, err.name);
       if (err.name === 'CastError') {
-        // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
         next(new BadRequestError('Некорректный id пользователя'));
       } else {
         next(err);
@@ -119,24 +74,14 @@ const getUserById = (req, res, next) => {
 
 // GET /users/me
 const getCurrentUser = (req, res, next) => {
-  console.log(req.user);
   const userId = req.user._id;
   User.findById(userId)
     .then((user) => {
       if (userId == null) {
-        console.log('из catch getCurrentUser:', user);
-        // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
         throw new NotFoundError('Пользователь не найден');
       }
-      // next();
-      console.log('из then getCurrentUser:', userId, user);
       res.send(user);
     })
-    // .catch((err) => {
-    //   console.log(err.message, err.name);
-    //   // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-    //   throw new ServerError('Ошибка на стороне сервера');
-    // })
     .catch(next);
 };
 
@@ -148,15 +93,11 @@ const updateUser = (req, res, data, next) => {
     .then((newUserInfo) => res.send(newUserInfo))
     .catch((err) => {
       if (err.message === 'NotFound') {
-        // res.status(NOT_FOUND_CODE).send(userNotFoundMessage);
         throw new NotFoundError('Пользователь не найден');
       }
       if (err.name === 'ValidationError') {
-        // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
         throw new BadRequestError('Ошибка валидации');
       } else {
-        // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
-        // throw new ServerError('Ошибка на стороне сервера');
         next(err);
       }
     });
@@ -180,9 +121,6 @@ const login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      // if (!user || !password) {
-      //   throw next(new UnauthorizedError('Неправильные почта или пароль'));
-      // }
       const token = jwt.sign(
         { _id: user._id },
         SECRET_KEY,
@@ -193,34 +131,9 @@ const login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       });
-      // return res.send({ token });
       res.send({ token });
     })
     .catch(next);
-
-  // const { email, password } = req.body;
-
-  // return User.findUserByCredentials(email, password)
-  //   .then((user) => {
-  //     const token = jwt.sign(
-  //       { _id: user._id },
-  //       SECRET_KEY,
-  //       { expiresIn: '7d' },
-  //     );
-
-  //     res.cookie('jwt', token, {
-  //       maxAge: 3600000 * 24 * 7,
-  //       httpOnly: true,
-  //     });
-
-  //     res.send({ token });
-  //   })
-  //   .catch((err) => {
-  //     console.log(err.message, err.name);
-  //     console.log(res);
-  //     // res.status(UNAUTHORIZED_CODE).send(unauthorizedErrorMessage);
-  //     throw new UnauthorizedError('Ошибка авторизации');
-  //   });
 };
 
 module.exports = {

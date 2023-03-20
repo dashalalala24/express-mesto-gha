@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { isURL } = require('validator');
+// const picRegEx = require('../utils/constants');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -11,9 +13,8 @@ const cardSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(value) {
-        return /^(https?:\/\/)?(www\.)?(([\w-]{1,}\.){1,})[^\s@]*.$/m.test(value);
-      },
+      validator: (link) => isURL(link),
+      message: 'Некорректная ссылка на изображение',
     },
   },
   owner: {

@@ -2,12 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
+const { PORT, DB_ADDRESS } = require('./config');
 const routes = require('./routes');
 const errorHandler = require('./middlewares/errorHandler');
 
-const { PORT = 3000, MONGO_URL = 'mongodb://localhost:27017/mestodb' } = process.env;
-
-mongoose.connect(MONGO_URL);
+mongoose.connect(DB_ADDRESS);
 const app = express();
 
 app.use(bodyParser.json());

@@ -39,12 +39,11 @@ const createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        throw next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+        next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       } if (err.name === 'ValidationError') {
-        throw next(new BadRequestError('Ошибка валидации'));
-      } else throw next(err);
-    })
-    .catch(next);
+        next(new BadRequestError('Ошибка валидации'));
+      } else next(err);
+    });
 };
 
 // GET /users
@@ -54,9 +53,8 @@ const getUsers = (req, res, next) => {
     .catch(next);
 };
 
-// GET /users/:userId
-const getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
+const getUser = (req, res, next, id) => {
+  User.findById(id)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь не найден');
@@ -65,24 +63,19 @@ const getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequestError('Некорректный id пользователя'));
-      } else {
-        next(err);
-      }
+        throw next(new BadRequestError('Некорректный id пользователя'));
+      } else next(err);
     });
+};
+
+// GET /users/:userId
+const getUserById = (req, res, next) => {
+  getUser(req, res, next, req.params.userId);
 };
 
 // GET /users/me
 const getCurrentUser = (req, res, next) => {
-  const userId = req.user._id;
-  User.findById(userId)
-    .then((user) => {
-      if (userId == null) {
-        throw new NotFoundError('Пользователь не найден');
-      }
-      res.send(user);
-    })
-    .catch(next);
+  getUser(req, res, next, req.user._id);
 };
 
 const updateUser = (req, res, data, next) => {
@@ -131,7 +124,7 @@ const login = (req, res, next) => {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
       });
-      res.send({ token });
+      res.send({ message: 'Вы авторизированы' });
     })
     .catch(next);
 };

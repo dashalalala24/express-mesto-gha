@@ -51,11 +51,10 @@ const deleteCard = (req, res, next) => {
     });
 };
 
-// PUT /cards/:cardId/likes
-const putLike = (req, res, next) => {
+const handleLike = (req, res, next, option) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } },
+    option,
     { new: true },
   )
     .then((card) => {
@@ -71,24 +70,14 @@ const putLike = (req, res, next) => {
     });
 };
 
+// PUT /cards/:cardId/likes
+const putLike = (req, res, next) => {
+  handleLike(req, res, next, { $addToSet: { likes: req.user._id } });
+};
+
 // DELETE /cards/:cardId/likes
 const deleteLike = (req, res, next) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
-    .then((card) => {
-      if (!card) {
-        throw new NotFoundError('Карточка не найдена');
-      }
-      res.send(card);
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw next(new BadRequestError('Некорректный id карточки'));
-      } else next(err);
-    });
+  handleLike(req, res, next, { $pull: { likes: req.user._id } });
 };
 
 module.exports = {

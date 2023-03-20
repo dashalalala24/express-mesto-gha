@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { isEmail } = require('validator');
-
+const { isEmail, isURL } = require('validator');
+// const picRegEx = require('../utils/constants');
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 const userSchema = new mongoose.Schema({
@@ -21,9 +21,8 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator(value) {
-        return /^(https?:\/\/)?(www\.)?(([\w-]{1,}\.){1,})[^\s@]*.$/m.test(value);
-      },
+      validator: (link) => isURL(link),
+      message: 'Некорректная ссылка на изображение',
     },
   },
   email: {
@@ -38,7 +37,6 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });

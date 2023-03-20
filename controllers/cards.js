@@ -21,8 +21,8 @@ const createCard = (req, res, next) => {
     .then((card) => res.status(CREATED_CODE).send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw next(new BadRequestError('Ошибка валидации'));
-      } else throw next(err);
+        return next(new BadRequestError('Ошибка валидации'));
+      } return next(err);
     });
 };
 
@@ -46,8 +46,8 @@ const deleteCard = (req, res, next) => {
     )
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw next(new BadRequestError('Некорректный id карточки'));
-      } else next(err);
+        return next(new BadRequestError('Некорректный id карточки'));
+      } return next(err);
     });
 };
 
@@ -65,8 +65,8 @@ const handleLike = (req, res, next, option) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw next(new BadRequestError('Некорректный id карточки'));
-      } else next(err);
+        return next(new BadRequestError('Некорректный id карточки'));
+      } return next(err);
     });
 };
 

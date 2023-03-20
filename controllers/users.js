@@ -39,10 +39,10 @@ const createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.code === 11000) {
-        next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
+        return next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       } if (err.name === 'ValidationError') {
-        next(new BadRequestError('Ошибка валидации'));
-      } else next(err);
+        return next(new BadRequestError('Ошибка валидации'));
+      } return next(err);
     });
 };
 
@@ -63,8 +63,8 @@ const getUser = (req, res, next, id) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw next(new BadRequestError('Некорректный id пользователя'));
-      } else next(err);
+        return next(new BadRequestError('Некорректный id пользователя'));
+      } return next(err);
     });
 };
 
@@ -81,18 +81,16 @@ const getCurrentUser = (req, res, next) => {
 const updateUser = (req, res, data, next) => {
   User.findByIdAndUpdate(req.user._id, data, { new: true, runValidators: true })
     .orFail(() => {
-      throw new Error('NotFound');
+      throw new NotFoundError('Пользователь не найден');
     })
     .then((newUserInfo) => res.send(newUserInfo))
     .catch((err) => {
-      if (err.message === 'NotFound') {
-        throw new NotFoundError('Пользователь не найден');
-      }
+      // if (err.message === 'NotFound') {
+      //   next(new NotFoundError('Пользователь не найден'));
+      // }
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Ошибка валидации');
-      } else {
-        next(err);
-      }
+        return next(new BadRequestError('Ошибка валидации'));
+      } return next(err);
     });
 };
 

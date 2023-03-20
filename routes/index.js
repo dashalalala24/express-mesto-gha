@@ -26,8 +26,8 @@ router.post('/signin', celebrate({
 
 router.use(auth);
 
-router.use(userRouter);
-router.use(cardRouter);
+router.use('/users', userRouter);
+router.use('/cards', cardRouter);
 
 router.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));

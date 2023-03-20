@@ -13,8 +13,8 @@ router.get('/cards', getCards);
 
 router.post('/cards', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().length(24).hex().required(),
-    // link: Joi.string().required(),
+    name: Joi.string().min(2).max(30).required(),
+    link: Joi.string().required().regex(/^(https?:\/\/)?(www\.)?(([\w-]{1,}\.){1,})[^\s@]*.$/m),
   }),
 }), createCard);
 

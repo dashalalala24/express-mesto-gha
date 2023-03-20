@@ -6,13 +6,12 @@ const userRouter = require('./users');
 const cardRouter = require('./cards');
 const { createUser, login } = require('../controllers/users');
 const { auth } = require('../middlewares/auth');
-const picRegEx = require('../utils/constants');
 
 router.post('/signup', celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().regex(picRegEx),
+    avatar: Joi.string().regex(/^(https?:\/\/)?(www\.)?(([\w-]{1,}\.){1,})[^\s@]*.$/m),
     email: Joi.string().required().email(),
     password: Joi.string().required(),
   }),

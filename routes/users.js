@@ -1,7 +1,6 @@
 const router = require('express').Router();
 const { celebrate, Joi, errors } = require('celebrate');
 
-const picRegEx = require('../utils/constants');
 const {
   getUsers,
   getUserById,
@@ -27,7 +26,7 @@ router.patch('/users/me', celebrate({
 
 router.patch('/users/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().regex(picRegEx),
+    avatar: Joi.string().required().regex(/^(https?:\/\/)?(www\.)?(([\w-]{1,}\.){1,})[^\s@]*.$/m),
   }),
 }), updateUserAvatar);
 

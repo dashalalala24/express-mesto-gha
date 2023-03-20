@@ -38,7 +38,7 @@ const createCard = (req, res, next) => {
 
 // DELETE /cards/:cardId
 const deleteCard = (req, res, next) => {
-  console.log(req.params.cardId);
+  console.log(req.params.cardId, req.user._id);
   // console.log('req.params.cardId:', req.params.cardId, 'req.user._id:', req.user._id);
   Card.findById(req.params.cardId)
     .then(
@@ -48,7 +48,8 @@ const deleteCard = (req, res, next) => {
           throw new NotFoundError('Карточка не найдена');
         }
 
-        if (req.params.cardId.owner !== req.user._id) {
+        if (card.owner._id.toString() !== req.user._id) {
+          console.log(card.owner._id.toString(), req.user._id);
           throw new ForbiddenError('Недостаточно прав');
         }
         // res.send(card);

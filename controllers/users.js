@@ -18,7 +18,7 @@ const {
   // conflictErrorMessage,
 } = require('../utils/constants');
 
-const BadRequest = require('../errors/BadRequest');
+const BadRequestError = require('../errors/BadRequestError');
 // const UnauthorizedError = require('../errors/UnauthorizedError');
 const NotFoundError = require('../errors/NotFoundError');
 const ConflictError = require('../errors/ConflictError');
@@ -58,7 +58,7 @@ const createUser = (req, res, next) => {
         throw next(new ConflictError('Пользователь с таким email уже зарегистрирован'));
       } if (err.name === 'ValidationError') {
         // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
-        throw next(new BadRequest('Ошибка валидации'));
+        throw next(new BadRequestError('Ошибка валидации'));
       // } if {
         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
         // next(new ServerError('Ошибка на стороне сервера'));
@@ -89,7 +89,7 @@ const getUsers = (req, res, next) => {
 //       console.log('из catch getUserById:', err.message, err.name);
 //       if (err.name === 'CastError') {
 //         // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
-//         throw new BadRequest('Некорректный id пользователя');
+//         throw new BadRequestError('Некорректный id пользователя');
 //       // } else {
 //         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
 //         // throw new ServerError('Ошибка на стороне сервера');
@@ -110,7 +110,7 @@ const getUserById = (req, res, next) => {
       // console.log('из catch getUserById:', err.message, err.name);
       if (err.name === 'CastError') {
         // res.status(BAD_REQUEST_CODE).send(incorrectUserIdMessage);
-        next(new BadRequest('Некорректный id пользователя'));
+        next(new BadRequestError('Некорректный id пользователя'));
       } else {
         next(err);
       }
@@ -153,7 +153,7 @@ const updateUser = (req, res, data, next) => {
       }
       if (err.name === 'ValidationError') {
         // res.status(BAD_REQUEST_CODE).send(validationErrorMessage);
-        throw new BadRequest('Ошибка валидации');
+        throw new BadRequestError('Ошибка валидации');
       } else {
         // res.status(SERVER_ERROR_CODE).send(serverErrorMessage);
         // throw new ServerError('Ошибка на стороне сервера');

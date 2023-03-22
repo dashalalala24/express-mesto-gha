@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const Card = require('../models/card');
 
 const { CREATED_CODE } = require('../utils/constants');
@@ -20,7 +22,7 @@ const createCard = (req, res, next) => {
   Card.create({ name, link, owner })
     .then((card) => res.status(CREATED_CODE).send({ data: card }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err instanceof mongoose.Error.ValidationError) {
         return next(new BadRequestError('Ошибка валидации'));
       } return next(err);
     });
@@ -39,13 +41,13 @@ const deleteCard = (req, res, next) => {
         if (card.owner._id.toString() !== req.user._id) {
           throw new ForbiddenError('Недостаточно прав');
         }
-        Card.findByIdAndRemove(cardId)
-          .then((deletedCard) => res.send(deletedCard))
+        Card.deleteOne({ _id: cardId })
+          .then((result) => res.send(result))
           .catch(next);
       },
     )
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError('Некорректный id карточки'));
       } return next(err);
     });
@@ -64,7 +66,7 @@ const handleLike = (req, res, next, option) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err instanceof mongoose.Error.CastError) {
         return next(new BadRequestError('Некорректный id карточки'));
       } return next(err);
     });

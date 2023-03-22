@@ -1,5 +1,4 @@
 const router = require('express').Router();
-const { errors } = require('celebrate');
 
 const NotFoundError = require('../errors/NotFoundError');
 
@@ -29,7 +28,5 @@ router.use('/cards', cardRouter);
 router.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
-
-router.use(errors());
 
 module.exports = router;

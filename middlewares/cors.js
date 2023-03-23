@@ -7,7 +7,7 @@ const allowedCors = [
   'https://mesto.dashalalala24.nomoredomains.work',
 ];
 
-const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
+const DEFAULT_ALLOWED_METHODS = 'GET,OPTIONS,HEAD,PUT,PATCH,POST,DELETE';
 
 const cors = (req, res, next) => {
   const { origin } = req.headers;

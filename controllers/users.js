@@ -84,9 +84,6 @@ const updateUser = (req, res, data, next) => {
     })
     .then((newUserInfo) => res.send(newUserInfo))
     .catch((err) => {
-      // if (err.message === 'NotFound') {
-      //   next(new NotFoundError('Пользователь не найден'));
-      // }
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new BadRequestError('Ошибка валидации'));
       } return next(err);

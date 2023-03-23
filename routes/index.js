@@ -10,12 +10,6 @@ const { createUser, login } = require('../controllers/users');
 const { auth } = require('../middlewares/auth');
 const { signupValidation, signinValidation } = require('../middlewares/validation');
 
-// router.get('/crash-test', () => {
-//   setTimeout(() => {
-//     throw new Error('Сервер сейчас упадёт');
-//   }, 0);
-// });
-
 router.post('/signup', signupValidation, createUser);
 
 router.post('/signin', signinValidation, login);
@@ -25,7 +19,7 @@ router.use(auth);
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
-router.use('*', (req, res, next) => {
+router.use((req, res, next) => {
   next(new NotFoundError('Страница не найдена'));
 });
 

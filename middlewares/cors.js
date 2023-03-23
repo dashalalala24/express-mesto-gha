@@ -3,8 +3,8 @@ const allowedCors = [
   'https://localhost:3000',
   'http://127.0.0.1:3000',
   'https://127.0.0.1:3000',
-  'http://mesto.dashalalala24.nomoredomains.work/sign-in',
-  'https://mesto.dashalalala24.nomoredomains.work/sign-in',
+  'http://mesto.dashalalala24.nomoredomains.work/',
+  'https://mesto.dashalalala24.nomoredomains.work/',
 ];
 
 const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';

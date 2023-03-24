@@ -23,6 +23,7 @@ module.exports.auth = (req, res, next) => {
     next(new UnauthorizedError('Необходима авторизация!!!'));
   }
   req.user = payload;
+  res.send({ token });
 
   next();
 };

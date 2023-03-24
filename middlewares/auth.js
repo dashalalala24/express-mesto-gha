@@ -4,7 +4,7 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const UnauthorizedError = require('../errors/UnauthorizedError');
 
 module.exports.auth = (req, res, next) => {
-  console.log('req.headers из auth back', req.headers);
+  console.log('req из auth back', req);
 
   if (!req.headers.cookie) {
     throw new UnauthorizedError('Необходима авторизация, нет кук в хедерс');

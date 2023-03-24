@@ -7,6 +7,7 @@ module.exports.auth = (req, res, next) => {
   console.log('req из auth back', req);
 
   if (!req.headers.cookie) {
+    console.log('req из auth back', req);
     throw new UnauthorizedError('Необходима авторизация, нет кук в хедерс');
   }
 

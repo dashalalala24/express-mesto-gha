@@ -7,11 +7,15 @@ module.exports.auth = (req, res, next) => {
   console.log(req.headers);
 
   if (!req.headers.cookie) {
-    throw new UnauthorizedError('Необходима авторизация, нет кук в хедерсе');
+    throw new UnauthorizedError('Необходима авторизация, нет кук в хедерс');
   }
 
   if (!req.headers.authorization) {
-    throw new UnauthorizedError('Необходима авторизация, нет authorization в хедерсе');
+    throw new UnauthorizedError('Необходима авторизация, нет authorization в хедерс');
+  }
+
+  if (req.headers.authorization) {
+    console.log('authorization в хедерс': authorization);
   }
   const { cookie } = req.headers;
   // const { authorization } = req.headers;

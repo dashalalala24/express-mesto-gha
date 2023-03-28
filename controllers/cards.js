@@ -20,7 +20,7 @@ const createCard = (req, res, next) => {
   const owner = req.user;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .populate(['owner', 'likes'])
+    .populate(['owner'])
     .then((card) => res.status(CREATED_CODE).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {

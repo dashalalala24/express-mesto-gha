@@ -29,7 +29,7 @@ module.exports.auth = (req, res, next) => {
 
   const { jwt } = req.cookies;
   if (!token) {
-    return next(new UnauthorizedError('Нужно авторизоваться'));
+    next(new UnauthorizedError('Нужно авторизоваться'));
   }
   // const token = jwt.replace('jwt=', '');
   let payload;

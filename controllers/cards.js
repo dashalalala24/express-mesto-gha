@@ -11,7 +11,7 @@ const ForbiddenError = require('../errors/ForbiddenError');
 const getCards = (req, res, next) => {
   Card.find({})
     .populate(['owner', 'likes'])
-    .then((cards) => res.send({ data: cards.data }))
+    .then((cards) => res.send({ data: cards }))
     .catch(next);
 };
 
@@ -20,7 +20,7 @@ const createCard = (req, res, next) => {
   const owner = req.user;
   const { name, link } = req.body;
   Card.create({ name, link, owner })
-    .then((card) => res.status(CREATED_CODE).send({ data: card.data }))
+    .then((card) => res.status(CREATED_CODE).send({ data: card }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         return next(new BadRequestError('Ошибка валидации'));

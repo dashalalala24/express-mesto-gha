@@ -58,7 +58,7 @@ const handleLike = (req, res, next, option) => {
     req.params.cardId,
     option,
     { new: true },
-  )
+  ).populate(['owner', 'likes'])
     .then((card) => {
       if (!card) {
         throw new NotFoundError('Карточка не найдена');

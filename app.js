@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 
 const { PORT, DB_ADDRESS } = require('./config');
 const cors = require('./middlewares/cors');
@@ -11,7 +12,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 mongoose.connect(DB_ADDRESS);
 const app = express();
-
+app.use(cookieParser());
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 

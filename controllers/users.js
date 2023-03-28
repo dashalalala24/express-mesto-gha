@@ -117,8 +117,8 @@ const login = (req, res, next) => {
       res.cookie('jwt', token, {
         maxAge: 3600000 * 24 * 7,
         httpOnly: true,
-        secure: NODE_ENV === 'production',
-        sameSite: 'none',
+        // secure: NODE_ENV === 'production',
+        // sameSite: 'none',
       });
       res.send({ message: 'Вы авторизированы', token });
     })

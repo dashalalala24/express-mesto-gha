@@ -74,12 +74,12 @@ const handleLike = (req, res, next, option) => {
 
 // PUT /cards/:cardId/likes
 const putLike = (req, res, next) => {
-  handleLike(req, res, next, { $addToSet: { likes: req.user } });
+  handleLike(req, res, next, { $addToSet: { likes: req.user._id } });
 };
 
 // DELETE /cards/:cardId/likes
 const deleteLike = (req, res, next) => {
-  handleLike(req, res, next, { $pull: { likes: req.user } });
+  handleLike(req, res, next, { $pull: { likes: req.user._id } });
 };
 
 module.exports = {

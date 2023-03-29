@@ -5,7 +5,7 @@ const NotFoundError = require('../errors/NotFoundError');
 const userRouter = require('./users');
 const cardRouter = require('./cards');
 
-const { createUser, login, logout } = require('../controllers/users');
+const { createUser, login } = require('../controllers/users');
 
 const { auth } = require('../middlewares/auth');
 const { signupValidation, signinValidation } = require('../middlewares/validation');
@@ -19,7 +19,7 @@ router.use(auth);
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
 
-router.get('/signout', logout);
+// router.get('/signout', logout);
 
 router.use('*', (req, res, next) => {
   next(new NotFoundError('Страница не найдена'));

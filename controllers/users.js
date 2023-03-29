@@ -125,13 +125,13 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-// POST /signout
-const logout = (req, res, next) => {
-  res
-    .clearCookie('jwt')
-    .send({ message: 'Вы вышли из аккаунта' })
-    .catch(next);
-};
+// // GET /signout
+// const logout = (req, res, next) => {
+//   res
+//     .clearCookie('jwt')
+//     .send({ message: 'Вы вышли из аккаунта' })
+//     .catch(next);
+// };
 
 module.exports = {
   getUsers,
@@ -141,5 +141,5 @@ module.exports = {
   updateUserInfo,
   updateUserAvatar,
   login,
-  logout,
+  // logout,
 };

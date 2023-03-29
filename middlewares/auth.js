@@ -60,7 +60,7 @@ module.exports.auth = (req, res, next) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
+    payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'secret-key');
     console.log('payload из auth:', payload);
   } catch {
     next(new UnauthorizedError('в auth не записался payload'));

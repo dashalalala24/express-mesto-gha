@@ -128,7 +128,7 @@ const login = (req, res, next) => {
 // POST /signout
 const logout = (req, res, next) => {
   res
-    // .clearCookie('jwt')
+    .clearCookie('jwt')
     .send({ message: 'Вы вышли из аккаунта' })
     .catch(next);
 };
